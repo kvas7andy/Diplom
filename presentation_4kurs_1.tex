@@ -1,0 +1,191 @@
+\documentclass[12pt]{beamer}
+\usetheme{Warsaw}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage[OT1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\usepackage{appendixnumberbeamer}
+ 
+\newtheorem{rustheorem}{Теорема }
+\DeclareMathOperator*{\argmin}{argmin}
+\let\T\intercal
+\let\ov\overline
+\def\bar_#1{\bold{\ov{#1}}}
+\def\hatup_#1{\bold{\hat{#1}}}
+\def\ton_#1{1,2,\dots,#1}
+\def\msf_#1{\mathsf{#1}}
+\def\Lagr{\mathcal{L}}
+\def\bo_#1{\bold{#1}}
+
+\setbeamersize{text margin left=10pt,text margin right=10pt} 
+
+\setbeamertemplate{footline}
+{
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.25\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+    \usebeamerfont{author in head/foot}\insertshortauthor
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.75\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+    \usebeamerfont{title in head/foot}\insertshorttitle\hspace*{3em}
+  \end{beamercolorbox}}%
+  \vskip0pt%
+}
+
+
+\makeatletter
+\setbeamertemplate{headline}
+{%
+  \leavevmode%
+  \@tempdimb=2.4375ex%
+  \ifnum\beamer@subsectionmax<\beamer@sectionmax%
+    \multiply\@tempdimb by\beamer@sectionmax%
+  \else%
+    \multiply\@tempdimb by\beamer@subsectionmax%
+  \fi%
+  \ifdim\@tempdimb>0pt%
+    \advance\@tempdimb by 1.825ex%
+    \begin{beamercolorbox}[wd=.25\paperwidth,ht=\@tempdimb]{section in head/foot}%
+      \vbox to\@tempdimb{\vfil\insertsectionnavigation{.25\paperwidth}\vfil}%
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.75\paperwidth,ht=\@tempdimb]{subsection in head/foot}%
+      \vbox to\@tempdimb{\vfil\insertsubsectionnavigation{.75\paperwidth}\vfil}%
+    \end{beamercolorbox}%
+  \fi%
+}
+
+\author{Андрей Квасов}
+\title{Анализ динамики изменения инвестиционного портфеля}
+%\setbeamercovered{transparent} 
+\setbeamertemplate{navigation symbols}{} 
+%\logo{} 
+\institute{МГУ им. М.\ В.\ Ломоносова} 
+\date{24 декабря 2015} 
+%\subject{} 
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+%\begin{frame}
+%\tableofcontents
+%\end{frame}
+
+\section{Intro}
+\begin{frame}{Задача анализа нестационарного сигнала}
+\begin{align*}
+&\msf_J(\bold x_1, \dots, \bold x_N) =\sum_{t=1}^N \psi(\bold x_t) + \sum_{t=2}^N \gamma(\bold x_{t-1}, \bold x_t) \\
+&=\sum_{t=1}^N (\bold{x}_t - \bold x_t^0)^\T \msf_Q_t^0(\bold x_t - \bold x_t^0) + \sum_{t=2}^N (\bold x_t - \msf_A_t \bold x_{t-1})^\T \msf_U_t (\bold x_t - \msf_A_t \bold x_{t-1})
+\end{align*}
+\end{frame}
+
+
+\begin{frame}{Задача анализа нестационарного сигнала}
+\framesubtitle{Преобразование задачи с учетом ограничений равенств} %[r]
+\begin{align*}
+&\text{Запишем ограничения равенства векторов }\bold x_t = (x_t^1,\dots,x_t^n) \in \mathbb{R}^n:\\
+&1 - \sum_{i=1}^{n}x_t^i = 0\ \Rightarrow\ x_t^n = 1 - \sum_{i=1}^{n-1}x_t^i\ \Rightarrow\ \bar_x_t = (x_t^1,\dots,x_t^{n-1})\in \mathbb{R}^{n-1}\\
+&\text{Где } \bold x_t = \msf_P\bar_x_t + \msf_p, \\
+&\msf_P = \begin{pmatrix}
+	1 & 0 & 0 &\dots & 0\\
+	0 & 1 & 0 & \dots & 0 \\
+	\vdots & \vdots & \ddots & \dots & \vdots\\
+	0 & 0 & 0 & \ddots & 0 \\
+	0 & 0 & 0 & \dots & 1 \\
+	-1 &-1 &-1 & \dots &-1 \\
+	\end{pmatrix} \in \mathbb{R}^{n \times (n-1)}
+\qquad \msf_p = \begin{pmatrix} 0 \\ \vdots \\ 0 \\ 1	\end{pmatrix} \in \mathbb{R}^n
+\end{align*}
+\end{frame}
+
+\begin{frame}{Задача анализа нестационарного сигнала}
+\framesubtitle{Преобразование задачи с учетом ограничений равенств}
+\begin{align*}
+&\text{Преобразуем другие переменные :}\\
+&\bar_y_t = \msf_P^\T \bold y_t,\ \bar_y_t \in \mathbb{R}^{n-1}\\
+&\overline{y}_t^0 = y_t^0 - \msf_p^\T\bold y_t = y_t^0 - y_t^n,\ \overline{y}_t^0 \in \mathbb{R}\\
+&\text{Тогда модель нестационарной регрессии преобразуется в вид:}\\
+&\overline{y}_t^0 = \bar_x_t^\T\bar_y_t + \xi_t,\ \bar_x_t, \bar_y_t \in \mathbb{R}^{n-1};\ \text{Также } \overline{\msf_Q}_t^0 = \bar_y_t \bar_y_t^\T,\ \bar_x_t^0 = \frac{\overline{y}_t^0}{\bar_y_t^\T \bar_y_t} \bar_y_t\\
+&\msf_J(\bold x_1, \dots, \bold x_N) =\sum_{t=1}^N (\bar_x_t - \bar_x_t^0)^\T \overline{\msf_Q}_t^0(\bar_x_t - \bar_x_t^0) + \\
+&+ \sum_{t=2}^N \left[\msf_A_t (\msf_P\bar_x_{t-1} + \msf_p) - (\msf_P\bar_x_t + \msf_p)\right]^\T \msf_U_t \left[\msf_A_t (\msf_P\bar_x_{t-1} + \msf_p) - (\msf_P\bar_x_t + \msf_p)\right]
+\end{align*}
+\end{frame}
+
+\begin{frame}{Задача анализа нестационарного сигнала}
+\framesubtitle{Преобразование задачи с учетом ограничений равенств}
+\begin{align*}
+&\text{Рассмотрим функцию связи на момент $t$:}\\
+&\left(\msf_A_t (\msf_P\bar_x_{t-1} + \msf_p) - (\msf_P\bar_x_t + \msf_p)\right)^\T \msf_U_t \left(\msf_A_t (\msf_P\bar_x_{t-1} + \msf_p) - (\msf_P\bar_x_t + \msf_p)\right) =\\ &=\bar_x_{t-1}^\T\msf_P^\T\msf_A_t^\T\msf_U_t\msf_A_t\msf_P
+\bar_x_{t-1} + 2\msf_p^\T\msf_A_t^\T\msf_U_t\msf_A_t\msf_P\bar_x_{t-1}+const(\msf_p)+\\
+&+\bar_x_t^\T\msf_P^\T\msf_U_t\msf_P\bar_x_t+2\msf_p^\T\msf_U_t\msf_P\bar_x_t+const(p)-
+2\bar_x_{t-1}^\T\msf_P^\T\msf_A_t^\T\msf_U_t\msf_P\bar_x_t-\\
+&-2\msf_p^\T\msf_A_t^\T\msf_U_t\msf_P\bar_x_t-
+2\msf_p^\T\msf_U_t\msf_A_t\msf_P\bar_x_{t-1}-const(p)\\
+& \text{Найдем минимум новой функции связи:}\\
+&\gamma(\bar_x_{t-1}, \bar_x_t) = \bar_x_{t-1}^\T\msf_P^\T\msf_A_{t}^\T\msf_U_{t}\msf_A_{t}\msf_P
+\bar_x_{t-1} +\bar_x_t^\T\msf_P^\T\msf_U_t\msf_P\bar_x_t-2\bar_x_{t-1}^\T\msf_P^\T\msf_A_t^\T\msf_U_t\msf_P\bar_x_t\\
+&\text{Условие стационарной точки: } \msf_P^\T\msf_U_t\msf_P\bar_x_t-\msf_P^\T\msf_U_t\msf_A_t\msf_P\bar_x_{t-1} = 0\Rightarrow\\
+&\Rightarrow \bar_x_t = (\msf_P^\T\msf_U_t\msf_P)^{-1}\msf_P^\T\msf_U_t\msf_A_t\msf_P\bar_x_{t-1} \\
+&\text{Обозначим }\overline{\msf_A}_t = (\msf_P^\T\msf_U_t\msf_P)^{-1}\msf_P^\T\msf_U_t\msf_A_t\msf_P;\ \overline{\msf_U}_t = \msf_P^\T\msf_U_t\msf_P\\
+\end{align*}
+\end{frame}
+
+
+\begin{frame}
+\begin{align*}
+&\text{Рассмотрим новую узловую функцию на момент t,}\\ &\text{с учетом оставшихся слагаемых: }
+\hat\psi(\bar_x_t) = (\bar_x_t - \bar_x_t^0)^\T \bar_{\msf_Q}_t^0 (\bar_x_t - \bar_x_t^0) + \\
+&+2\msf_p^\T\msf_A_{t+1}^\T\msf_U_{t+1}\msf_A_{t+1}\msf_P\bar_x_t +2\msf_p^\T\msf_U_t\msf_P\bar_x_t-2\msf_p^\T\msf_A_t^\T\msf_U_t\msf_P\bar_x_t-
+2\msf_p^\T\msf_U_{t+1}\msf_A_{t+1}\msf_P\bar_x_t\\
+&\text{Приведем новую узловую функцию к виду: }\\
+&\hat\psi(\bar_x_t)=(\bar_x_t - \hatup_x_t^0)^\T\hatup_{\msf_Q}_t^0(\bar_x_t - \hatup_x_t^0)=(\bar_x_t - \bar_x_t^0)^\T \bar_{\msf_Q}_t^0 (\bar_x_t - \bar_x_t^0) - 2\msf_p^\T\msf_S\msf_P\bar_x_t,\text{где}\\
+&\msf_S = \msf_A_t^\T\msf_U_t+
+\msf_U_{t+1}\msf_A_{t+1}-(\msf_A_{t+1}^\T\msf_U_{t+1}\msf_A_{t+1}+\msf_U_t)\\
+&\text{Раскрывая скобки получим: }
+{\bar_x_t}^\T\hatup_{\msf_Q}_t^0\bar_x_t = {\bar_x_t}^\T\bar_{\msf_Q}_t^0\bar_x_t\Rightarrow\hatup_{\msf_Q}_t^0=\bar_{\msf_Q}_t^0
+=\bar_y_t\bar_y_t^\T\\
+&\hatup_x_t^0{}^\T\bar_{\msf_Q}_t^0\bar_x_t =\bar_x_t^0{}^\T\bar_{\msf_Q}_t^0\bar_x_t +  \msf_p^\T\msf_S\msf_P\bar_x_t\Rightarrow
+(\hatup_x_t^0-\bar_x_t^0)^\T\bar_y_t\bar_y_t^\T = \msf_p^\T\msf_S\msf_P |\cdot\bar_y_t\Rightarrow\\
+&(\hatup_x_t^0-\bar_x_t^0)^\T\bar_y_t=(\bar_y_t^\T\bar_y_t)^{-1}\msf_p^\T\msf_S\msf_P\bar_y_t.\text{ Таким образом }\hatup_x_t^0 =\bar_x_t^0 + \cfrac1{\bar_y_t^\T\bar_y_t}\msf_P^\T\msf_S^\T\msf_p
+\end{align*}
+\end{frame}
+
+\begin{frame}
+\begin{align*}
+&\msf_J(\bold x_1, \dots, \bold x_N) =\\
+&\sum_{t=2}^N (\bar_x_t - \bar_x_t^0)^\T \overline{\msf_Q}_t^0(\bar_x_t - \bar_x_t^0) + \sum_{t=2}^N (\overline{\msf_A}_t \bar_x_{t-1} - \bar_x_t)^\T \overline{\msf_U}_t (\overline{\msf_A}_t \bar_x_{t-1} - \bar_x_t)\\
+&\overline{\msf_Q}_t^0 = \bar_y_t \bar_y_t^\T,\ \bar_x_t^0 = \frac{\overline{y}_t^0}{\bar_y_t^\T \bar_y_t} \bar_y_t + \msf_P^\T(\msf_U_t\msf_A_t + \msf_U_{t+1}\msf_A_{t+1})\msf_p
+\end{align*}
+\end{frame}
+
+\begin{frame}
+\begin{rustheorem}[Канонический вид квадратичной функции]
+	Пусть $\msf_L(\bo_x) = \sum_{i=1}^M(\msf_D_i\bo_x - \bo_z_i)^\T\msf_B_i(\msf_D_i\bo_x - \bo_z_i), \bo_x\in\mathbb{R}^n,$ такие что $\bo_z_i\in\mathbb{R}^{k_i},\ k_i\leq n,$\\
+		$\msf_B_i\leq 0\  (\msf_B_i\in\mathbb{R}^{n\times n},\msf_D_i\in\mathbb{R}^{k_i\times n})$, так что $\exists i: \msf_B_i>0, rg(\msf_D_i)=k_i.$\\
+\begin{itemize}
+\item Тогда можно представить $\msf_L(\bo_x) = (\bo_x  - \bo_z)^\T\msf_B(\bo_x-\bo_z)+\msf_d,$\\
+$\msf_B = \sum_{i=1}^M \msf_D_i^\T\msf_B_i\msf_D_i>0;\ z=\displaystyle\argmin_{\bo_x\in\mathbb{R}^n}L(x)={\msf_B}^{-1}\sum_{i=1}^M
+		\msf_D_i^\T\msf_B_i\bo_z_i;$\\
+$d = \displaystyle\min_{\bo_x\in\mathbb{R}^n}=\sum_{i=1}^M(\bo_z_i-\msf_D_i\bo_z)^\T\msf_B_i\bo_z_i\geq0;$\\
+\item $\text{Если }M=2, k_1=k_2=n, D_1, D_2$ --- невырожденные, то
+\begin{align*}
+&\msf_d=(\msf_D_1^{-1}\bo_z_1-\msf_D_2^{-1}\bo_z_2)^\T(\msf_D_1^{-1}\msf_B_1^{-1}(\msf_D_1^{-1})^\T+\msf_D_2^{-1}\msf_B_2^{-1}(\msf_D_2^{-1})^\T)^{-1}\cdot\\
+		&\cdot(\msf_D_1^{-1}\bo_z_1-\msf_D_2^{-1}\bo_z_2)
+\end{align*}
+\end{itemize}
+\end{rustheorem}
+\end{frame}
+
+
+\begin{frame}
+\end{frame}
+
+%\begin{frame}
+%\end{frame}
+
+\end{document}
