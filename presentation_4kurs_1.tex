@@ -1,4 +1,4 @@
-\documentclass[12pt]{beamer}
+\documentclass[1pt]{beamer}
 \usetheme{Warsaw}
 \usepackage[utf8]{inputenc}
 \usepackage[russian]{babel}
@@ -76,17 +76,89 @@
 %\tableofcontents
 %\end{frame}
 
-\section{Intro}
-\begin{frame}{Задача анализа нестационарного сигнала}
+
+\begin{frame}{Обзор предметной области и постановка задачи}
+\begin{itemize}
+\item Объектом распознавания являются сигналы $\bo_y = (\bo_y_1,\dots,\bo_y_N), \bo_y_i \in \mathbb{R}^n, i=1,\dots,N$. Целевая переменная - $\bo_y^0 \in \mathbb{R}^N$.
+\item Рассматривается модель линейной регрессии, где искомой величиной является сигнал $\bo_x = (\bo_x_1,\dots,\bo_x_N)$, связанный с предыдущими  $\bo_y^0_t = \bo_y_t^\T\bo_x_t + \varepsilon_t$. Задача состоит в нахождении по заданному сигналу объекта $\bo_y$ и целевого вектора $\bo_y^0$ объекта, его регрессионных коэффициентов $\bo_x$.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Инвестиционный портфель хэдж фонда}
+\framesubtitle{Постановка задачи}
+\begin{columns}[T]
+    \begin{column}{.5\textwidth}
+     \begin{block}{Returns Based Style Analysis model}
+		$z_t^i$ - цена актива в портфеле\\
+		$m_t^i$ - количество активов в портфеле, данного вида\\
+		$y_t^i = \frac{z_t^i - z_{t-1}^i}{z_{t-1}^i}$ - доходности активов в портфеле\\
+    \end{block}
+    \end{column}
+    \begin{column}{.5\textwidth}
+   	 \includegraphics[width=\textwidth]{pic/pic1.png}
+    \end{column}
+  \end{columns}
+\end{frame}
+	
+\begin{frame}{Инвестиционный портфель хэдж фонда}
+\framesubtitle{Постановка задачи}
+\begin{columns}[T]
+    \begin{column}{.5\textwidth}
+     \begin{block}{Returns Based Style Analysis model}
+		$\hat{y}_t^0 = \sum_{i=1}^n m_t^iz_t^i$ - стоимость инвестиционного портфеля (скрытая величина)\\
+		$y_t^0 = \frac{\hat{y}_t^0 - \hat{y}_{t-1}^0}{\hat{y}_{t-1}^0}$ - доходность портфеля (наблюдаемая величина)\\
+		$\hat{x}_t^i = \frac{m_t^i z_t^i}{\sum_{i=1}^n m_t^i z_t^i}$ - доли активов в инвестиционном портфеле. доходности активов в портфеле\\
+    \end{block}
+    \end{column}
+    \begin{column}{.5\textwidth}
+   	 \includegraphics[width=\textwidth]{pic/pic1.png}\\
+   	\qquad\qquad \[
+\begin{cases}
+y_t^0 = \bo_y_t^\T \bo_x_t + \varepsilon_t^1, \text{ где } \bo_x_t \approx \bo_{\hat{x}}_t \\
+\sum_{i=1}^n x_t^i = 1
+\end{cases}
+\]
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}{Математическая модель инвестиционного портфеля хэдж фонда}
+\begin{block}{Модель наблюдения: узловые функции $\psi_t(\bo_x_t)$}
+\begin{align*}
+&\psi_t(\bo_x_t) = (y_t^0 - \bo_y_t^\T \bo_x_t)^2 = (\bold{x}_t - \bold x_t^0)^\T \msf_Q_t^0(\bold x_t - \bold x_t^0), \text{где }\msf_Q_t^0 = \bo_y_t \bo_y_t^\T,\ \bo_x_t^0 = \frac{y_t^0}{\bo_y_t^\T \bo_y_t} \bo_y_t\\
+\end{align*}
+\end{block}
+
+\begin{block}{Модель динамики: функции связи $\gamma_t(\bo_x_{t-1}, \bo_x_t)$}
+\begin{align*}
+&\gamma_t(\bo_x_{t-1}, \bo_x_t) = (\bold x_t - \msf_A_t \bold x_{t-1})^\T \msf_U_t (\bold x_t - \msf_A_t \bold x_{t-1})\\
+&\msf_U = \msf_{Diagonal}(\alpha), \text{где }\alpha - \text{ параметр сглаживания}\\
+&\bo_x_t = \frac{1+\bo_y_t}{1+\bo_x_{t-1}^\T\bo_y_t} \Rightarrow\msf_A_t = \msf_{Diagonal}(\frac{1+\bo_y_t}{1+y_t^0}),\ \bo_x_t = \msf_A_t\bo_x_{t-1} + \varepsilon_t^2
+\end{align*}
+\end{block}
+\end{frame}
+
+\begin{frame}{Математическая модель инвестиционного портфеля хэдж фонда}
+\framesubtitle{Общий критерий для оценивания состава портфеля}
+\begin{block}{Общий критерий для оценивания состава портфеля}
 \begin{align*}
 &\msf_J(\bold x_1, \dots, \bold x_N) =\sum_{t=1}^N \psi(\bold x_t) + \sum_{t=2}^N \gamma(\bold x_{t-1}, \bold x_t) \\
 &=\sum_{t=1}^N (\bold{x}_t - \bold x_t^0)^\T \msf_Q_t^0(\bold x_t - \bold x_t^0) + \sum_{t=2}^N (\bold x_t - \msf_A_t \bold x_{t-1})^\T \msf_U_t (\bold x_t - \msf_A_t \bold x_{t-1})
 \end{align*}
+\end{block}
+\begin{block}{Задача программирования с парно-сепарабельной функцией}
+\[\begin{cases}
+\msf_J(\bold x_1, \dots, \bold x_N)\rightarrow\min_{\bo_x_1,\dots,\bo_x_N}\\
+\sum_{i=1}^n x_t^i = 1,\ t=1,\dots,N
+\end{cases}
+\]
+\end{block}
 \end{frame}
 
 
-\begin{frame}{Задача анализа нестационарного сигнала}
-\framesubtitle{Преобразование задачи с учетом ограничений равенств} %[r]
+\begin{frame}{Математическая модель инвестиционного портфеля хэдж фонда}
+\framesubtitle{Учет ограничения на сумму долей активов} %[r]
 \begin{align*}
 &\text{Запишем ограничения равенства векторов }\bold x_t = (x_t^1,\dots,x_t^n) \in \mathbb{R}^n:\\
 &1 - \sum_{i=1}^{n}x_t^i = 0\ \Rightarrow\ x_t^n = 1 - \sum_{i=1}^{n-1}x_t^i\ \Rightarrow\ \bar_x_t = (x_t^1,\dots,x_t^{n-1})\in \mathbb{R}^{n-1}\\
@@ -103,8 +175,9 @@
 \end{align*}
 \end{frame}
 
-\begin{frame}{Задача анализа нестационарного сигнала}
-\framesubtitle{Преобразование задачи с учетом ограничений равенств}
+
+\begin{frame}{Математическая модель инвестиционного портфеля хэдж фонда}
+\framesubtitle{Учет ограничения на сумму долей активов}
 \begin{align*}
 &\text{Преобразуем другие переменные :}\\
 &\bar_y_t = \msf_P^\T \bold y_t,\ \bar_y_t \in \mathbb{R}^{n-1}\\
@@ -116,8 +189,8 @@
 \end{align*}
 \end{frame}
 
-\begin{frame}{Задача анализа нестационарного сигнала}
-\framesubtitle{Преобразование задачи с учетом ограничений равенств}
+\begin{frame}{Математическая модель инвестиционного портфеля хэдж фонда}
+\framesubtitle{Учет ограничения на сумму долей активов}
 \begin{align*}
 &\text{Рассмотрим функцию связи на момент $t$:}\\
 &\left(\msf_A_t (\msf_P\bar_x_{t-1} + \msf_p) - (\msf_P\bar_x_t + \msf_p)\right)^\T \msf_U_t \left(\msf_A_t (\msf_P\bar_x_{t-1} + \msf_p) - (\msf_P\bar_x_t + \msf_p)\right) =\\ &=\bar_x_{t-1}^\T\msf_P^\T\msf_A_t^\T\msf_U_t\msf_A_t\msf_P
@@ -136,7 +209,8 @@
 \end{frame}
 
 
-\begin{frame}
+\begin{frame}{Математическая модель инвестиционного портфеля хэдж фонда}
+\framesubtitle{Учет ограничения на сумму долей активов}
 \begin{align*}
 &\text{Рассмотрим новую узловую функцию на момент t,}\\ &\text{с учетом оставшихся слагаемых: }
 \hat\psi(\bar_x_t) = (\bar_x_t - \bar_x_t^0)^\T \bar_{\msf_Q}_t^0 (\bar_x_t - \bar_x_t^0) + \\
@@ -155,15 +229,57 @@
 \end{align*}
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Математическая модель инвестиционного портфеля хэдж фонда}
+\framesubtitle{Учет ограничения на сумму долей активов}
+\begin{block}{Общий критерий для оценивания состава портфеля}
 \begin{align*}
-&\msf_J(\bold x_1, \dots, \bold x_N) =\\
-&\sum_{t=2}^N (\bar_x_t - \bar_x_t^0)^\T \overline{\msf_Q}_t^0(\bar_x_t - \bar_x_t^0) + \sum_{t=2}^N (\overline{\msf_A}_t \bar_x_{t-1} - \bar_x_t)^\T \overline{\msf_U}_t (\overline{\msf_A}_t \bar_x_{t-1} - \bar_x_t)\\
+\msf_J(\bar_x_1, \dots, \bar_x_N) =&\sum_{t=2}^N (\bar_x_t - \bar_x_t^0)^\T \overline{\msf_Q}_t^0(\bar_x_t - \bar_x_t^0) + \\&\sum_{t=2}^N (\overline{\msf_A}_t \bar_x_{t-1} - \bar_x_t)^\T \overline{\msf_U}_t (\overline{\msf_A}_t \bar_x_{t-1} - \bar_x_t)\\
 &\overline{\msf_Q}_t^0 = \bar_y_t \bar_y_t^\T,\ \bar_x_t^0 = \frac{\overline{y}_t^0}{\bar_y_t^\T \bar_y_t} \bar_y_t + \msf_P^\T(\msf_U_t\msf_A_t + \msf_U_{t+1}\msf_A_{t+1})\msf_p
 \end{align*}
+\end{block}
+\begin{block}{Задача программирования с парно-сепарабельной функцией}
+\[\begin{cases}
+\msf_J(\bar_x_1, \dots, \bar_x_N)\rightarrow\min_{\bar_x_1,\dots,\bar_x_N}\\
+\sum_{i=1}^n \overline{x}_t^i = 1,\ t=1,\dots,N
+\end{cases}
+\]
+\end{block}
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Алгоритм оценивания состава инвестиционного портфеля портфеля}
+\framesubtitle{Алгоритм динамического программирования}
+\begin{columns}[T]
+\begin{column}{.5\textwidth}
+   	  \begin{block}{Левые функции Беллмана}
+   	  \begin{itemize}
+   	  \item Частичный критерий:\ 
+		$\msf_J_t^{-}(\bar_x_1, \dots, \bar_x_t) = \sum_{i=1}^t \psi_i(\bar_x_i) + \sum_{i=2}^t \gamma_i(\bar_x_{i-1}, \bar_x_i)$
+		\item Функция Беллмана:\\
+		$\tilde{\msf_J}_t^{-}(\bar_x_t) = \displaystyle\min_{\bar_x_1,\dots,\bar_x_{t-1}}\msf_J_t^{-}(\bar_x_1, \dots, \bar_x_t) $
+		\item Рекуррентное соотношение:\
+		$\tilde{\msf_J}_t^{-}(\bar_x_t) =\psi_t(\bar_x_t) +  \displaystyle\min_{\bar_x_{t-1}}[\gamma_t(\bar_x_{t-1}, \bar_x_t)+\tilde{\msf_J}_{t-1}^{-}(\bar_x_{t-1})]$
+		 \end{itemize}
+    \end{block}
+    \end{column}
+    \begin{column}{.5\textwidth}
+     \begin{block}{Правые функции Беллмана}
+     \begin{itemize}
+   	  \item Частичный критерий:\ 
+		$\msf_J_t^{+}(\bar_x_t, \dots, \bar_x_N) = \sum_{i=t}^N \psi_i(\bar_x_i) + \sum_{i=t+1}^N \gamma_i(\bar_x_{i-1}, \bar_x_i)$
+		\item Функция Беллмана:\
+		$\tilde{\msf_J}_t^{+}(\bar_x_t) = \displaystyle\min_{\bar_x_{t+1},\dots,\bar_x_N}\msf_J_t^{+}(\bar_x_t, \dots, \bar_x_N)$
+		\item Рекуррентное соотношение:\
+		$\tilde{\msf_J}_t^{+}(\bar_x_t) =\psi_t(\bar_x_t) +  \displaystyle\min_{\bar_x_{t+1}}[\gamma_{t+1}(\bar_x_{t}, \bar_x_{t+1})+\tilde{\msf_J}_{t+1}^{-}(\bar_x_{t+1})]$
+		\end{itemize}
+    \end{block}
+    \end{column}
+\end{columns}
+\qquad Искомые значения $\bar_x_t = \displaystyle\min_{\bar_x_t}[\tilde{\msf_J}_t^{-}(\bar_x_t) + \tilde{\msf_J}_t^{+}(\bar_x_t) - \psi(\bar_x_t)]$
+\end{frame}
+
+
+\begin{frame}{Алгоритм оценивания состава портфеля}
+\framesubtitle{Пересчет параметров квадратичных форм}
 \begin{rustheorem}[Канонический вид квадратичной функции]
 	Пусть $\msf_L(\bo_x) = \sum_{i=1}^M(\msf_D_i\bo_x - \bo_z_i)^\T\msf_B_i(\msf_D_i\bo_x - \bo_z_i), \bo_x\in\mathbb{R}^n,$ такие что $\bo_z_i\in\mathbb{R}^{k_i},\ k_i\leq n,$\\
 		$\msf_B_i\leq 0\  (\msf_B_i\in\mathbb{R}^{n\times n},\msf_D_i\in\mathbb{R}^{k_i\times n})$, так что $\exists i: \msf_B_i>0, rg(\msf_D_i)=k_i.$\\
@@ -181,6 +297,33 @@ $d = \displaystyle\min_{\bo_x\in\mathbb{R}^n}=\sum_{i=1}^M(\bo_z_i-\msf_D_i\bo_z
 \end{rustheorem}
 \end{frame}
 
+
+\begin{frame}{Алгоритм оценивания состава инвестиционного портфеля портфеля}
+\framesubtitle{Алгоритм динамического программирования}
+($\bo_x_t := \bar_x_t$)\\ Квадратичный вид функций Беллмана: \[\begin{cases}\tilde{\msf_J}_t^{-}(\bo_x_t) = (\bo_x_t - \tilde{\bo_x}_t^{-})^\T\tilde{\msf_Q}_t^{-}(\bo_x_t - \tilde{\bo_x}_t^{-}) + \tilde{b}^{-}\\ \tilde{\msf_J}_t^{+}(\bo_x_t) = (\bo_x_t - \tilde{\bo_x}_t^{+})^\T\tilde{\msf_Q}_t^{+}(\bo_x_t - \tilde{\bo_x}_t^{+}) + \tilde{b}^{+}\end{cases}\]
+\begin{block}{Пересчет параметров левой функции Беллмана}
+\begin{align*}
+&\tilde{b}_1^{-}=0,\ \tilde{\bo_x}_1^{-} = \bo_x_1^0, \tilde{\msf_Q}_1^{-} = \msf_Q_1^0\\
+&\tilde{\msf_Q}_t^{-} =\msf_Q_t^0 + (\msf_U^{-1}+\msf_A_t^\T\tilde{\msf_Q}_{t-1}^{-}{}^{-1}\msf_A_t)^{-1} \\
+&\tilde{\bo_x}_t^{-} = \tilde{\msf_Q}_t^{-}{}^{-1}(\msf_Q_t^0\bo_x_t^0 + (\msf_U^{-1}+\msf_A_t^\T\tilde{\msf_Q}_{t-1}^{-}{}^{-1}\msf_A_t)^{-1}\msf_A_t\tilde{\bo_x}_{t-1}^{-})\\
+&\tilde{b}_t^{-} = \tilde{b}_{t-1}^{-} + (\bo_x_t^0 - \tilde{\bo_x}_t^{-})^\T\msf_Q_t^0\bo_x_t^0 + (\tilde{\bo_x}_{t-1}^{-} - \msf_A_t^\T\tilde{\bo_x}_t^{-})(\msf_U^{-1}+\msf_A_t^\T\tilde{\msf_Q}_{t-1}^{-}{}^{-1}\msf_A_t)^{-1})\tilde{\bo_x}_{t-1}^{-} \\
+\end{align*}
+\end{block}
+\end{frame}
+
+
+\begin{frame}{Алгоритм оценивания состава инвестиционного портфеля портфеля}
+\framesubtitle{Алгоритм динамического программирования}
+\begin{block}{Пересчет параметров правой функции Беллмана}
+\begin{align*}
+&\tilde{b}_N^{+}=0,\ \tilde{\bo_x}_N^{+} = \bo_x_N^0, \tilde{\msf_Q}_N^{+} = \msf_Q_N^0\\
+&\tilde{\msf_Q}_t^{+} =\msf_Q_t^0 + \msf_U\msf_A_{t+1}(\msf_U+\tilde{\msf_Q}_{t+1}^{+})^{-1}\tilde{\msf_Q}_{t+1}^{+}\msf_A_{t+1}^{-1}\\
+&\tilde{\bo_x}_t^{+} = \tilde{\msf_Q}_t^{+}{}^{-1}(\msf_Q_t^0\bo_x_t^0 + \msf_U\msf_A_{t+1}(\msf_U+\tilde{\msf_Q}_{t+1}^{+})^{-1}\tilde{\msf_Q}_{t+1}^{+}\tilde{\bo_x}_{t+1}^{+})\\
+&\tilde{b}_t^{+} = \tilde{b}_{t-1}^{+} + (\bo_x_t^0 - \tilde{\bo_x}_t^{-})^\T\msf_Q_t^0\bo_x_t^0 + (\tilde{\bo_x}_{t+1}^{-} - \msf_A_{t+1}\tilde{\bo_x}_t^{+})^\T\msf_U(\msf_U+
+\tilde{\msf_Q}_{t+1}^{+})^{-1}\tilde{\msf_Q}_{t+1}^{+}\tilde{\bo_x}_{t+1}^{+}\\
+\end{align*}
+\end{block}
+\end{frame}
 
 \begin{frame}
 \end{frame}
